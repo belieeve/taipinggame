@@ -1,7 +1,8 @@
 body {
-    font-family: sans-serif;
+    /* 新しいフォントと背景色 */
+    font-family: 'M PLUS Rounded 1c', sans-serif;
     text-align: center;
-    background-color: #f0f0f0;
+    background-color: #fdf0d5; /* クリーム色 */
     margin: 0;
     display: flex;
     justify-content: center;
@@ -14,48 +15,65 @@ body {
     max-width: 800px;
     padding: 20px;
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 20px; /* 角をより丸く */
+    border: 3px solid #78c0e0; /* 水色の枠線 */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* ゲーム画面をFlexboxレイアウトに変更 */
 #game-screen {
     display: flex;
     flex-direction: column;
-    height: 750px; /* ゲーム画面全体の高さを固定 */
+    height: 750px;
 }
 
 .hidden {
     display: none;
 }
 
+h1, h2 {
+    color: #ef476f; /* ポップなピンク */
+}
+
 button {
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: bold;
     margin: 5px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 30px; /* 丸いボタン */
     border: none;
-    background-color: #3498db;
+    border-bottom: 4px solid #d68c45; /* 影 */
+    background-color: #f9a620; /* オレンジ */
     color: white;
+    transition: all 0.1s ease;
 }
 
 button:hover {
-    background-color: #2980b9;
+    transform: translateY(-2px);
+    border-bottom-width: 6px;
+}
+
+button:active {
+    transform: translateY(2px);
+    border-bottom-width: 2px;
 }
 
 #score {
-    flex-shrink: 0; /* スコア表示エリアの高さは固定 */
-    font-size: 24px;
+    flex-shrink: 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: #0077b6; /* 濃い青 */
     margin-bottom: 10px;
 }
 
 #game-area {
-    flex-grow: 1; /* 残りの高さをすべてゲームエリアが使う */
+    flex-grow: 1;
     position: relative;
-    background-color: #2c3e50;
-    border-radius: 5px;
+    /* 青空のグラデーション */
+    background: linear-gradient(to bottom, #89cff0, #ffffff);
+    border-radius: 15px;
     overflow: hidden;
+    border: 2px solid #eee;
 }
 
 #judgment-line {
@@ -63,54 +81,65 @@ button:hover {
     bottom: 10px;
     left: 0;
     width: 100%;
-    height: 5px;
-    background-color: #e74c3c;
+    height: 8px;
+    background: linear-gradient(90deg, #f7b267, #f79d65, #f4845f, #f27059, #f25c54); /* 虹色 */
+    border-radius: 4px;
+    box-shadow: 0 0 10px yellow;
 }
 
+/* --- ノーツを星形に変更 --- */
 .note {
     position: absolute;
-    width: 40px;
-    height: 40px;
-    background-color: #3498db;
-    border-radius: 50%;
+    width: 50px;
+    height: 50px;
     transform: translateX(-50%);
+    /* 星形 */
+    background-color: #ffd700; /* ゴールド */
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: spin 2s linear infinite; /* キラキラ回る */
 }
 
-/* --- キーガイドのスタイル (Flexboxで再構築) --- */
+@keyframes spin {
+    from { transform: translateX(-50%) rotate(0deg); }
+    to { transform: translateX(-50%) rotate(360deg); }
+}
+
+
+/* --- キーガイドのスタイル --- */
 #key-guide {
-    flex-shrink: 0; /* キーガイドエリアの高さは固定 */
+    flex-shrink: 0;
     display: flex;
-    justify-content: space-around; /* キーを均等に配置 */
+    justify-content: space-around;
     align-items: center;
     padding: 10px 0;
-    background-color: #dcdcdc;
-    border-radius: 0 0 5px 5px;
+    background-color: #f0f0f0;
+    border-top: 2px solid #ddd;
 }
 
 .key {
-    width: 60px;
-    height: 60px;
-    line-height: 60px;
-    font-size: 24px;
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    font-size: 30px;
     font-weight: bold;
-    color: #333;
-    background-color: #f7f7f7;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 3px 0 #aaa;
+    color: white;
+    background-color: #4cc9f0; /* 明るい青 */
+    border: none;
+    border-radius: 50%; /* 丸いキー */
+    box-shadow: 0 4px 0 #1a99b9;
     transition: all 0.05s ease-in-out;
 }
 
 .key.active {
     transform: translateY(2px);
-    box-shadow: 0 1px 0 #aaa;
-    background-color: #e0e0e0;
+    box-shadow: 0 2px 0 #1a99b9;
+    background-color: #3da8c8;
 }
 
 /* --- 判定エフェクトのスタイル --- */
 @keyframes judgment-animation {
     from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    to { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 }
 
 .judgment-effect {
@@ -118,10 +147,10 @@ button:hover {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 48px;
+    font-size: 52px;
     font-weight: bold;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    color: #fff;
+    text-shadow: 0 0 5px #ef476f, 0 0 10px #ef476f, 0 0 15px #ef476f; /* ネオン風 */
     animation: judgment-animation 0.5s forwards;
     pointer-events: none;
 }
