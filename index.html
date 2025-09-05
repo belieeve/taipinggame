@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイミングゲーム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="start-screen" class="screen">
+        <h1>タイミングゲーム</h1>
+        <p>レベルをえらんでね</p>
+        <button id="level-easy">かんたん (7-8さい)</button>
+        <button id="level-normal">ふつう (9-10さい)</button>
+        <button id="level-hard">むずかしい (11-12さい)</button>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div id="score">スコア: 0</div>
+        <div id="game-area"></div>
+        <div id="judgment-line"></div>
+    </div>
+
+    <div id="result-screen" class="screen hidden">
+        <h2>けっか</h2>
+        <p id="final-score">さいしゅうスコア: 0</p>
+        <button id="retry-button">もういちど</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
