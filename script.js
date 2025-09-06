@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('level-hard')
     ];
     const retryButton = document.getElementById('retry-button');
+    const giveUpButton = document.getElementById('give-up-button');
 
     // --- ゲーム設定 (1ボタン仕様) ---
     let score = 0;
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultScreen.classList.add('hidden');
         startScreen.classList.remove('hidden');
     });
+    giveUpButton.addEventListener('click', showResult); // あきらめるボタン
     document.addEventListener('keydown', handleKeyPress);
     // スマホ・タブレット用のタッチイベント
     keySpace.addEventListener('touchstart', (e) => {
