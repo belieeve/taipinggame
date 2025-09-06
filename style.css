@@ -74,12 +74,36 @@ button:active {
     border-bottom-width: 2px;
 }
 
+#status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
 #score {
     flex-shrink: 0;
     font-size: calc(20px + 1.5vmin);
     font-weight: bold;
     color: #0077b6;
-    margin-bottom: 10px;
+    margin-right: 20px; /* HPバーとの間隔 */
+}
+
+#hp-container {
+    flex-grow: 1;
+    height: 25px;
+    background-color: #e0e0e0;
+    border-radius: 15px;
+    border: 2px solid #0077b6;
+    overflow: hidden;
+}
+
+#hp-bar {
+    width: 100%; /* 初期値は満タン */
+    height: 100%;
+    background-color: #06d6a0; /* 明るい緑 */
+    border-radius: 12px;
+    transition: width 0.3s ease-in-out;
 }
 
 #game-area {

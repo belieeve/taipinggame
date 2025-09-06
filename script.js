@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameArea = document.getElementById('game-area');
     const judgmentLine = document.getElementById('judgment-line');
     const keySpace = document.getElementById('key-space');
+    const hpBar = document.getElementById('hp-bar');
 
     // --- ボタン要素の取得 ---
     const levelButtons = [
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ゲーム設定 (1ボタン仕様) ---
     let score = 0;
+    let hp = 0;
     let notes = [];
     let audio;
     let musicData;
@@ -74,8 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
         startScreen.classList.add('hidden');
         gameScreen.classList.remove('hidden');
         score = 0;
+        hp = 100;
         notes = [];
         updateScore(0);
+        updateHp(0);
+
         // gameAreaの子要素をjudgmentLine以外削除
         while (gameArea.children.length > 1) {
             if(gameArea.firstChild !== judgmentLine) {
@@ -84,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameArea.removeChild(gameArea.lastChild);
             }
         }
-
 
         if (audio) audio.pause();
         audio = new Audio(musicData.audioSrc);
@@ -97,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ゲームループ ---
     function gameLoop() {
+        if (hp <= 0) return; // HPが0ならループ停止
         const currentTime = Date.now() - startTime;
         while (musicData.data.length > 0 && musicData.data[0].time <= currentTime) {
             createNote(musicData.data.shift().lane);
@@ -109,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (newTop > gameArea.clientHeight) {
                 notesToRemove.push(note);
                 showJudgmentEffect('Miss');
+                updateHp(-10); // 見逃しミスでHP減少
             }
         });
         notesToRemove.forEach(note => removeNote(note));
@@ -136,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 判定実行処理 (キーボード・タッチ共通) ---
     function performJudgment(key) {
+        if (hp <= 0) return; // HPが0なら判定しない
         const keyElement = keyElements[key];
         if (keyElement) {
             keyElement.classList.add('active');
@@ -167,9 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (distance < 30) { // Perfect
             judgment = 'Perfect';
             updateScore(300);
+            updateHp(1); // PerfectでHP回復
         } else if (distance < 60) { // Good
             judgment = 'Good';
             updateScore(100);
+        } else { // Miss
+            updateHp(-10);
         }
 
         showJudgmentEffect(judgment);
@@ -182,6 +192,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateScore(point) {
         score += point;
         scoreDisplay.textContent = `スコア: ${score}`;
+    }
+
+    // --- HP更新 ---
+    function updateHp(amount) {
+        hp += amount;
+        if (hp > 100) hp = 100;
+        if (hp < 0) hp = 0;
+        hpBar.style.width = `${hp}%`;
+        if (hp <= 0) {
+            showResult();
+        }
     }
 
     // --- ノーツ削除 ---
