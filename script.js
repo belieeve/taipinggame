@@ -52,6 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return mobileKeyGuide;
     }
 
+    function positionMobileKeyGuide() {
+        if (!mobileKeyGuide) return;
+        const y = judgmentLine.offsetTop + judgmentLine.clientHeight + 8; // ライン直下に配置
+        mobileKeyGuide.style.top = `${y}px`;
+    }
+
     function clearMobileKeyGuide() {
         if (mobileKeyGuide) {
             // 子要素（キー）をデスクトップのガイドへ戻す
@@ -193,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lane = keyMapping[key];
                 el.style.left = lanePositions[lane];
             });
+            positionMobileKeyGuide();
         } else {
             clearMobileKeyGuide();
         }
@@ -378,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const lane = keyMapping[key];
                     el.style.left = lanePositions[lane];
                 });
+                positionMobileKeyGuide();
             } else {
                 clearMobileKeyGuide();
             }
