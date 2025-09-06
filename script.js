@@ -111,9 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioSrc = 'assets/audio/song-normal.mp3';
                 levelName = 'normal';
                 laneCount = 2;
-                activeKeys = [' ', 'Enter'];
-                keyMapping = { ' ': 0, 'Enter': 1 };
-                keyElements = { ' ': keySpace, 'Enter': keyEnter };
+                activeKeys = [' ', 'enter'];
+                keyMapping = { ' ': 0, 'enter': 1 };
+                keyElements = { ' ': keySpace, 'enter': keyEnter };
                 lanePositions = ['35%', '65%'];
                 break;
             case 'level-hard':
@@ -123,9 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioSrc = 'assets/audio/song-hard.mp3';
                 levelName = 'hard';
                 laneCount = 3;
-                activeKeys = ['a', ' ', 'Enter'];
-                keyMapping = { 'a': 0, ' ': 1, 'Enter': 2 };
-                keyElements = { 'a': keyA, ' ': keySpace, 'Enter': keyEnter };
+                activeKeys = ['a', ' ', 'enter'];
+                keyMapping = { 'a': 0, ' ': 1, 'enter': 2 };
+                keyElements = { 'a': keyA, ' ': keySpace, 'enter': keyEnter };
                 lanePositions = ['25%', '50%', '75%'];
                 break;
         }
