@@ -27,29 +27,46 @@ document.addEventListener('DOMContentLoaded', () => {
     let musicData;
     let startTime;
     let gameInterval;
+    let noteSpeed = 3; // ノーツの落下速度
     const keyMapping = { ' ': 0 }; // スペースキーのみ
     const keyElements = { ' ': keySpace };
 
-    // --- 譜面データ生成 ---
-    function createSheet(bpm, lengthSeconds, pattern) {
+    // --- 新しい譜面データ生成 ---
+    function generateMusicSheet(bpm, totalMeasures, level) {
         const sheet = [];
-        const interval = 60000 / bpm;
-        const totalNotes = Math.floor(lengthSeconds * 1000 / interval);
-        for (let i = 0; i < totalNotes; i++) {
-            const lane = pattern[i % pattern.length];
-            if (lane !== null) {
-                 sheet.push({ time: Math.floor((i + 1) * interval), lane: lane });
+        const measureDuration = 60000 / bpm * 4; // 1小節のミリ秒
+
+        // レベルに応じたリズムパターン
+        const patterns = {
+            easy: [
+                [0, null, null, null], // 4分
+                [0, null, 0, null],   // 4分x2
+            ],
+            normal: [
+                [0, null, 0, null],   // 4分x2
+                [0, 0, null, null],   // 8分
+                [0, 0, 0, null],   // 8分+4分
+                [0, null, 0, 0],   // 4分+8分
+            ],
+            hard: [
+                [0, 0, 0, 0],       // 8分x2
+                [0, 0, 0, null],   // 8分+4分
+                [0, null, 0, 0],   // 4分+8分
+                [0, 0, null, 0],   // 付点8分
+            ]
+        };
+
+        for (let i = 0; i < totalMeasures; i++) {
+            const pattern = patterns[level][Math.floor(Math.random() * patterns[level].length)];
+            for (let j = 0; j < pattern.length; j++) {
+                if (pattern[j] !== null) {
+                    const time = Math.floor(i * measureDuration + (j * measureDuration / 4));
+                    sheet.push({ time: time, lane: 0 });
+                }
             }
         }
         return sheet;
     }
-
-    // --- 譜面データ (1レーン仕様) ---
-    const musicSheets = {
-        'level-easy': { audioSrc: 'assets/audio/song-easy.mp3', data: createSheet(120, 300, [0, null, 0, null]) },
-        'level-normal': { audioSrc: 'assets/audio/song-normal.mp3', data: createSheet(135, 300, [0, null, 0, 0, null]) },
-        'level-hard': { audioSrc: 'assets/audio/song-hard.mp3', data: createSheet(150, 300, [0, null, 0, null, 0, 0, null, 0]) }
-    };
 
     // --- イベントリスナー ---
     levelButtons.forEach(button => button.addEventListener('click', () => startGame(button.id)));
@@ -74,7 +91,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ゲーム開始処理 ---
     function startGame(level) {
-        musicData = JSON.parse(JSON.stringify(musicSheets[level]));
+        let bpm, totalMeasures, audioSrc, levelName;
+
+        switch (level) {
+            case 'level-easy':
+                bpm = 130;
+                totalMeasures = 40; // 約1分
+                noteSpeed = 3;
+                audioSrc = 'assets/audio/song-easy.mp3';
+                levelName = 'easy';
+                break;
+            case 'level-normal':
+                bpm = 150;
+                totalMeasures = 50; // 約1分20秒
+                noteSpeed = 4;
+                audioSrc = 'assets/audio/song-normal.mp3';
+                levelName = 'normal';
+                break;
+            case 'level-hard':
+                bpm = 170;
+                totalMeasures = 60; // 約1分25秒
+                noteSpeed = 5;
+                audioSrc = 'assets/audio/song-hard.mp3';
+                levelName = 'hard';
+                break;
+        }
+
+        musicData = { data: generateMusicSheet(bpm, totalMeasures, levelName) };
         startScreen.classList.add('hidden');
         gameScreen.classList.remove('hidden');
         score = 0;
@@ -93,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (audio) audio.pause();
-        audio = new Audio(musicData.audioSrc);
+        audio = new Audio(audioSrc);
         audio.play().catch(e => console.error("音楽の再生に失敗しました:", e));
 
         startTime = Date.now();
@@ -111,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const notesToRemove = [];
         notes.forEach(note => {
-            const newTop = parseFloat(note.style.top) + 3;
+            const newTop = parseFloat(note.style.top) + noteSpeed;
             note.style.top = `${newTop}px`;
             if (newTop > gameArea.clientHeight) {
                 notesToRemove.push(note);
