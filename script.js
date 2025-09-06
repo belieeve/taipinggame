@@ -54,8 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function positionMobileKeyGuide() {
         if (!mobileKeyGuide) return;
-        const y = judgmentLine.offsetTop + judgmentLine.clientHeight + 8; // ライン直下に配置
-        mobileKeyGuide.style.top = `${y}px`;
+        // 画面下固定にするためtopは解除し、bottomを設定
+        mobileKeyGuide.style.top = '';
+        mobileKeyGuide.style.bottom = '2%';
     }
 
     function clearMobileKeyGuide() {
