@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const keyA = document.getElementById('key-a');
     const keySpace = document.getElementById('key-space');
     const keyEnter = document.getElementById('key-enter');
+    const desktopKeyGuide = document.getElementById('key-guide');
     const hpBar = document.getElementById('hp-bar');
 
     // --- ボタン要素の取得 ---
@@ -35,6 +36,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let keyMapping = {};
     let keyElements = {};
     let lanePositions = ['25%', '50%', '75%']; // 3レーン分の位置
+    let mobileKeyGuide; // モバイル用のキー配置コンテナ
+
+    // --- レイアウト補助 ---
+    function isMobileLayout() {
+        return window.matchMedia('(max-width: 900px)').matches || 'ontouchstart' in window;
+    }
+
+    function ensureMobileKeyGuide() {
+        if (!mobileKeyGuide) {
+            mobileKeyGuide = document.createElement('div');
+            mobileKeyGuide.id = 'mobile-key-guide';
+            gameArea.appendChild(mobileKeyGuide);
+        }
+        return mobileKeyGuide;
+    }
+
+    function clearMobileKeyGuide() {
+        if (mobileKeyGuide) {
+            // 子要素（キー）をデスクトップのガイドへ戻す
+            Array.from(mobileKeyGuide.children).forEach(el => {
+                desktopKeyGuide.appendChild(el);
+                el.style.left = '';
+            });
+            if (mobileKeyGuide.parentNode === gameArea) gameArea.removeChild(mobileKeyGuide);
+            mobileKeyGuide = null;
+        }
+    }
 
     // --- クリア用ユーティリティ ---
     function clearGameplayObjects() {
@@ -91,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     retryButton.addEventListener('click', () => {
         // スタート画面に戻る前に残存オブジェクトをクリア
         clearGameplayObjects();
+        clearMobileKeyGuide();
         resultScreen.classList.add('hidden');
         startScreen.classList.remove('hidden');
     });
@@ -155,6 +184,18 @@ document.addEventListener('DOMContentLoaded', () => {
             judgmentLine.appendChild(target);
         }
         Object.values(keyElements).forEach(el => el.style.display = 'inline-block');
+
+        // モバイルではキーを判定ライン直下に重ねる
+        if (isMobileLayout()) {
+            const mk = ensureMobileKeyGuide();
+            Object.entries(keyElements).forEach(([key, el]) => {
+                mk.appendChild(el);
+                const lane = keyMapping[key];
+                el.style.left = lanePositions[lane];
+            });
+        } else {
+            clearMobileKeyGuide();
+        }
 
         // タッチイベントのセットアップ
         Object.entries(keyElements).forEach(([key, element]) => {
@@ -321,8 +362,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if(audio) audio.pause();
         // 結果表示前にゲーム内の丸（ノーツ・ターゲット・エフェクト）を全消去
         clearGameplayObjects();
+        clearMobileKeyGuide();
         gameScreen.classList.add('hidden');
         resultScreen.classList.remove('hidden');
         finalScoreDisplay.textContent = `さいしゅうスコア: ${score}`;
     }
+
+    // 画面リサイズ時にキー配置を再調整
+    window.addEventListener('resize', () => {
+        if (!gameScreen.classList.contains('hidden')) {
+            if (isMobileLayout()) {
+                const mk = ensureMobileKeyGuide();
+                Object.entries(keyElements).forEach(([key, el]) => {
+                    if (el.parentNode !== mk) mk.appendChild(el);
+                    const lane = keyMapping[key];
+                    el.style.left = lanePositions[lane];
+                });
+            } else {
+                clearMobileKeyGuide();
+            }
+        }
+    });
 });

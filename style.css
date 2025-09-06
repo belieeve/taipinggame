@@ -128,6 +128,24 @@ button:active {
     align-items: center;
 }
 
+/* モバイル用：キーを判定ラインのすぐ下に重ねる */
+#mobile-key-guide {
+    position: absolute;
+    left: 0;
+    bottom: 2%; /* 判定ライン(10%)の少し下に配置 */
+    width: 100%;
+    pointer-events: none; /* コンテナ自体はクリック不可 */
+    z-index: 5;
+}
+
+#mobile-key-guide .key {
+    position: absolute;
+    transform: translateX(-50%);
+    pointer-events: auto; /* 各キーは操作できる */
+    display: none; /* JSで必要なキーのみ表示 */
+    min-width: 0;
+}
+
 .target {
     width: 8vmin;
     height: 8vmin;
