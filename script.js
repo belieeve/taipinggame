@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeKeys = [];
     let keyMapping = {};
     let keyElements = {};
-    const lanePositions = ['25%', '50%', '75%']; // 3レーン分の位置
+    let lanePositions = ['25%', '50%', '75%']; // 3レーン分の位置
 
     // --- 新しい譜面データ生成 ---
     function generateMusicSheet(bpm, totalMeasures, level, laneCount) {
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             target.style.left = lanePositions[i];
             judgmentLine.appendChild(target);
         }
-        Object.values(keyElements).forEach(el => el.style.display = 'flex');
+        Object.values(keyElements).forEach(el => el.style.display = 'inline-block');
 
         // タッチイベントのセットアップ
         Object.entries(keyElements).forEach(([key, element]) => {
