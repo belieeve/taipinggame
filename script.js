@@ -36,6 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let keyElements = {};
     let lanePositions = ['25%', '50%', '75%']; // 3レーン分の位置
 
+    // --- クリア用ユーティリティ ---
+    function clearGameplayObjects() {
+        // ノーツと判定エフェクトを削除
+        document.querySelectorAll('#game-area .note, #game-area .judgment-effect').forEach(el => {
+            if (el && el.parentNode) el.parentNode.removeChild(el);
+        });
+        // ターゲットをクリア
+        judgmentLine.innerHTML = '';
+        // 配列をリセット
+        notes = [];
+    }
+
     // --- 新しい譜面データ生成 ---
     function generateMusicSheet(bpm, totalMeasures, level, laneCount) {
         const sheet = [];
@@ -77,6 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- イベントリスナー ---
     levelButtons.forEach(button => button.addEventListener('click', () => startGame(button.id)));
     retryButton.addEventListener('click', () => {
+        // スタート画面に戻る前に残存オブジェクトをクリア
+        clearGameplayObjects();
         resultScreen.classList.add('hidden');
         startScreen.classList.remove('hidden');
     });
@@ -88,7 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let bpm, totalMeasures, audioSrc, levelName;
 
         // レベルに応じて設定を初期化
-        judgmentLine.innerHTML = ''; // ターゲットをクリア
+        // 念のためゲーム用オブジェクトをクリア
+        clearGameplayObjects();
+        judgmentLine.innerHTML = ''; // ターゲットをクリア（再設定）
         [keyA, keySpace, keyEnter].forEach(k => k.style.display = 'none');
 
         switch (level) {
@@ -303,6 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function showResult() {
         cancelAnimationFrame(gameInterval);
         if(audio) audio.pause();
+        // 結果表示前にゲーム内の丸（ノーツ・ターゲット・エフェクト）を全消去
+        clearGameplayObjects();
         gameScreen.classList.add('hidden');
         resultScreen.classList.remove('hidden');
         finalScoreDisplay.textContent = `さいしゅうスコア: ${score}`;
