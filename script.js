@@ -7,9 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalScoreDisplay = document.getElementById('final-score');
     const gameArea = document.getElementById('game-area');
     const judgmentLine = document.getElementById('judgment-line');
-    const keyD = document.getElementById('key-d');
-    const keyF = document.getElementById('key-f');
-    const keyJ = document.getElementById('key-j');
+    const keyEnter = document.getElementById('key-enter');
+    const keySpace = document.getElementById('key-space');
 
     // --- ボタン要素の取得 ---
     const levelButtons = [
@@ -19,15 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     const retryButton = document.getElementById('retry-button');
 
-    // --- ゲーム設定 ---
+    // --- ゲーム設定 (2ボタン仕様) ---
     let score = 0;
     let notes = [];
     let audio;
     let musicData;
     let startTime;
     let gameInterval;
-    const keyMapping = { 'd': 0, 'f': 1, 'j': 2 };
-    const keyElements = { 'd': keyD, 'f': keyF, 'j': keyJ };
+    const keyMapping = { ' ': 0, 'Enter': 1 }; // スペースが左(0), Enterが右(1)
+    const keyElements = { 'Enter': keyEnter, ' ': keySpace };
 
     // --- 譜面データ生成 ---
     function createSheet(bpm, lengthSeconds, pattern) {
@@ -43,10 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return sheet;
     }
 
+    // --- 譜面データ (2レーン仕様) ---
     const musicSheets = {
-        'level-easy': { audioSrc: 'assets/audio/song-easy.mp3', data: createSheet(120, 300, [0, 1, 2, 1]) },
-        'level-normal': { audioSrc: 'assets/audio/song-normal.mp3', data: createSheet(135, 300, [0, 2, 1, 0, 1, 2, 0, null]) },
-        'level-hard': { audioSrc: 'assets/audio/song-hard.mp3', data: createSheet(150 * 2, 300, [0, null, 1, null, 2, null, 1, null, 0, 1, 2, null, 0, null, 1, 2]) }
+        'level-easy': { audioSrc: 'assets/audio/song-easy.mp3', data: createSheet(120, 300, [1, 0, 1, 0]) },
+        'level-normal': { audioSrc: 'assets/audio/song-normal.mp3', data: createSheet(135, 300, [1, 0, 1, null, 0, 1, 0, null]) },
+        'level-hard': { audioSrc: 'assets/audio/song-hard.mp3', data: createSheet(150 * 2, 300, [1, null, 0, null, 1, 0, 1, null, 0, null, 1, null, 0, 1, 0, null]) }
     };
 
     // --- イベントリスナー ---
@@ -99,38 +99,43 @@ document.addEventListener('DOMContentLoaded', () => {
         gameInterval = requestAnimationFrame(gameLoop);
     }
 
-    // --- ノーツ生成 ---
+    // --- ノーツ生成 (2レーン仕様) ---
     function createNote(lane) {
         const note = document.createElement('div');
         note.classList.add('note');
         note.dataset.lane = lane;
         note.style.top = '0px';
-        note.style.left = `${(lane * 33.3) + 16.65}%`;
+        note.style.left = lane === 0 ? '25%' : '75%'; // 左(25%)と右(75%)に配置
         gameArea.insertBefore(note, judgmentLine);
         notes.push(note);
     }
     
     // --- キー入力処理 ---
     function handleKeyPress(e) {
-        if (!keyMapping.hasOwnProperty(e.key)) return;
-        
-        const keyElement = keyElements[e.key];
-        if (keyElement) {
-            keyElement.classList.add('active');
-            setTimeout(() => keyElement.classList.remove('active'), 100);
+        // ゲーム画面が表示されていない場合は処理しない
+        if(gameScreen.classList.contains('hidden')) return;
+
+        if (keyMapping.hasOwnProperty(e.key)) {
+            e.preventDefault(); // スペースキーでのスクロールなどを防ぐ
+            
+            const keyElement = keyElements[e.key];
+            if (keyElement) {
+                keyElement.classList.add('active');
+                setTimeout(() => keyElement.classList.remove('active'), 100);
+            }
+
+            const lane = keyMapping[e.key];
+            const targetNotes = notes.filter(note => parseInt(note.dataset.lane) === lane);
+            if (targetNotes.length === 0) return;
+
+            const judgmentLinePosition = judgmentLine.offsetTop;
+            const closestNote = targetNotes.reduce((closest, current) => {
+                const closestDist = Math.abs(parseFloat(closest.style.top) - judgmentLinePosition);
+                const currentDist = Math.abs(parseFloat(current.style.top) - judgmentLinePosition);
+                return currentDist < closestDist ? current : closest;
+            });
+            judge(closestNote);
         }
-
-        const lane = keyMapping[e.key];
-        const targetNotes = notes.filter(note => parseInt(note.dataset.lane) === lane);
-        if (targetNotes.length === 0) return;
-
-        const judgmentLinePosition = judgmentLine.offsetTop;
-        const closestNote = targetNotes.reduce((closest, current) => {
-            const closestDist = Math.abs(parseFloat(closest.style.top) - judgmentLinePosition);
-            const currentDist = Math.abs(parseFloat(current.style.top) - judgmentLinePosition);
-            return currentDist < closestDist ? current : closest;
-        });
-        judge(closestNote);
     }
 
     // --- 判定処理 ---
@@ -173,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const effect = document.createElement('div');
         effect.classList.add('judgment-effect');
         effect.textContent = text;
-        // 判定ラインより上にエフェクトを表示
         effect.style.top = (judgmentLine.offsetTop - 40) + 'px';
         gameArea.appendChild(effect);
         setTimeout(() => {

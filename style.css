@@ -105,35 +105,39 @@ button:active {
 }
 
 
-/* --- キーガイドのスタイル --- */
+/* --- キーガイドのスタイル (2ボタン仕様) --- */
 #key-guide {
     flex-shrink: 0;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 10px 0;
+    padding: 10px 20px; /* 左右に余白を追加 */
     background-color: #f0f0f0;
     border-top: 2px solid #ddd;
 }
 
 .key {
-    width: 70px;
-    height: 70px;
-    line-height: 70px;
-    font-size: 30px;
+    padding: 10px 20px;
+    height: 60px;
+    line-height: 40px; /* paddingを考慮 */
+    font-size: 24px;
     font-weight: bold;
-    color: white;
-    background-color: #4cc9f0; /* 明るい青 */
-    border: none;
-    border-radius: 50%; /* 丸いキー */
-    box-shadow: 0 4px 0 #1a99b9;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 3px 0 #aaa;
     transition: all 0.05s ease-in-out;
+}
+
+#key-space {
+    min-width: 250px; /* スペースキーを横長に */
 }
 
 .key.active {
     transform: translateY(2px);
-    box-shadow: 0 2px 0 #1a99b9;
-    background-color: #3da8c8;
+    box-shadow: 0 1px 0 #aaa;
+    background-color: #e0e0e0;
 }
 
 /* --- 判定エフェクトのスタイル --- */
