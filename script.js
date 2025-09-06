@@ -55,6 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
         startScreen.classList.remove('hidden');
     });
     document.addEventListener('keydown', handleKeyPress);
+    // スマホ・タブレット用のタッチイベント
+    keySpace.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // 画面のスクロールを防ぐ
+        performJudgment(' ');
+    });
+    keySpace.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        const keyElement = keyElements[' '];
+        if (keyElement) {
+            keyElement.classList.remove('active');
+        }
+    });
 
     // --- ゲーム開始処理 ---
     function startGame(level) {
@@ -118,13 +130,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleKeyPress(e) {
         // ゲーム画面が表示されていない、またはスペースキーでない場合は処理しない
         if(gameScreen.classList.contains('hidden') || e.key !== ' ') return;
-
         e.preventDefault(); // スペースキーでのスクロールを防ぐ
-        
-        const keyElement = keyElements[e.key];
+        performJudgment(' ');
+    }
+
+    // --- 判定実行処理 (キーボード・タッチ共通) ---
+    function performJudgment(key) {
+        const keyElement = keyElements[key];
         if (keyElement) {
             keyElement.classList.add('active');
-            setTimeout(() => keyElement.classList.remove('active'), 100);
+            // touchendでクラスを削除するため、キーボードの場合はsetTimeoutで削除
+            if (!('ontouchstart' in window)) {
+                 setTimeout(() => keyElement.classList.remove('active'), 100);
+            }
         }
 
         if (notes.length === 0) return;
