@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (newTop > gameArea.clientHeight) {
                 notesToRemove.push(note);
                 showJudgmentEffect('Miss');
-                updateHp(-10); // 見逃しミスでHP減少
+                updateHp(-5); // 見逃しミスでHP減少（5ずつ）
             }
         });
         notesToRemove.forEach(note => removeNote(note));
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             judgment = 'Good';
             updateScore(100);
         } else { // Miss
-            updateHp(-10);
+            updateHp(-5);
         }
 
         showJudgmentEffect(judgment);

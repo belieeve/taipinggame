@@ -162,8 +162,10 @@ button:active {
 #game-controls {
     flex-shrink: 0;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: center; /* 中央揃えに変更 */
+    align-items: stretch; /* アイテムの高さを揃える */
+    flex-wrap: wrap; /* 折り返しを許可 */
+    gap: 10px; /* 要素間の隙間 */
     padding: 1.5vmin;
     background-color: #f0f0f0;
     border-top: 2px solid #ddd;
@@ -172,9 +174,12 @@ button:active {
 }
 
 #key-guide {
-    flex-grow: 1;
-    display: flex;
-    justify-content: space-around;
+    /* 1行すべてを占有して次の要素を折り返す */
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 10px; /* キー間の隙間 */
+    align-items: stretch;
 }
 
 .key {
@@ -189,7 +194,9 @@ button:active {
     border-radius: 8px;
     box-shadow: 0 3px 0 #aaa;
     transition: all 0.05s ease-in-out;
-    min-width: 15vw;
+    min-width: 0; /* グリッドでの縮小を許可 */
+    flex: 1 1 auto; /* 念のため残すがグリッドが優先 */
+    text-align: center;
     display: none; /* JSで表示を制御 */
 }
 
@@ -198,6 +205,7 @@ button:active {
     border-bottom-color: #778899;
     font-size: calc(12px + 0.8vmin);
     padding: 1vmin 2vmin;
+    flex-shrink: 0; /* 広い画面では縮めない */
 }
 
 .key.active {
@@ -247,7 +255,34 @@ button:active {
         bottom: 15%; /* 縦画面では判定ラインを少し上げる */
     }
 
+    #game-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    #key-guide {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 8px;
+    }
+
     .key {
-        font-size: 18px;
+        font-size: 16px;
+    }
+
+    .sub-button {
+        width: 100%; /* スマホは1行で幅いっぱい */
+        align-self: center;
+    }
+}
+
+/* タブレット・中画面向けの調整 */
+@media (max-width: 900px) {
+    #key-guide {
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    }
+    .sub-button {
+        width: 100%; /* 2行目に回してはみ出し防止 */
+        align-self: center;
     }
 }
