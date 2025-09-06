@@ -109,7 +109,7 @@ button:active {
 #game-area {
     flex-grow: 1;
     position: relative;
-    background: linear-gradient(to bottom, #89cff0, #ffffff);
+    background-color: #b3e5fc; /* 明るく楽しい水色の単色 */
     border-radius: 15px;
     overflow: hidden;
     border: 2px solid #eee;
@@ -137,7 +137,7 @@ button:active {
     border: 3px solid #FFD166;
     box-shadow: 0 0 10px #fff;
     box-sizing: border-box;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    border-radius: 50%; /* 星をやめて丸に */
     display: none; /* JSで表示を制御 */
     position: absolute;
     transform: translateX(-50%);
@@ -151,7 +151,7 @@ button:active {
     max-height: 60px;
     transform: translateX(-50%);
     background-color: #ffd700;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    border-radius: 50%; /* 星をやめて丸に */
 }
 
 @keyframes spin {
