@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalScoreDisplay = document.getElementById('final-score');
     const gameArea = document.getElementById('game-area');
     const judgmentLine = document.getElementById('judgment-line');
+    const keyA = document.getElementById('key-a');
     const keySpace = document.getElementById('key-space');
+    const keyEnter = document.getElementById('key-enter');
     const hpBar = document.getElementById('hp-bar');
 
     // --- ボタン要素の取得 ---
@@ -19,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const retryButton = document.getElementById('retry-button');
     const giveUpButton = document.getElementById('give-up-button');
 
-    // --- ゲーム設定 (1ボタン仕様) ---
+    // --- ゲーム設定 ---
     let score = 0;
     let hp = 0;
     let notes = [];
@@ -27,12 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let musicData;
     let startTime;
     let gameInterval;
-    let noteSpeed = 3; // ノーツの落下速度
-    const keyMapping = { ' ': 0 }; // スペースキーのみ
-    const keyElements = { ' ': keySpace };
+    let noteSpeed = 3;
+    let laneCount = 1;
+    let activeKeys = [];
+    let keyMapping = {};
+    let keyElements = {};
+    const lanePositions = ['25%', '50%', '75%']; // 3レーン分の位置
 
     // --- 新しい譜面データ生成 ---
-    function generateMusicSheet(bpm, totalMeasures, level) {
+    function generateMusicSheet(bpm, totalMeasures, level, laneCount) {
         const sheet = [];
         const measureDuration = 60000 / bpm * 4; // 1小節のミリ秒
 
@@ -61,7 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let j = 0; j < pattern.length; j++) {
                 if (pattern[j] !== null) {
                     const time = Math.floor(i * measureDuration + (j * measureDuration / 4));
-                    sheet.push({ time: time, lane: 0 });
+                    const lane = Math.floor(Math.random() * laneCount);
+                    sheet.push({ time: time, lane: lane });
                 }
             }
         }
@@ -76,48 +82,77 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     giveUpButton.addEventListener('click', showResult); // あきらめるボタン
     document.addEventListener('keydown', handleKeyPress);
-    // スマホ・タブレット用のタッチイベント
-    keySpace.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // 画面のスクロールを防ぐ
-        performJudgment(' ');
-    });
-    keySpace.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        const keyElement = keyElements[' '];
-        if (keyElement) {
-            keyElement.classList.remove('active');
-        }
-    });
 
     // --- ゲーム開始処理 ---
     function startGame(level) {
         let bpm, totalMeasures, audioSrc, levelName;
 
+        // レベルに応じて設定を初期化
+        judgmentLine.innerHTML = ''; // ターゲットをクリア
+        [keyA, keySpace, keyEnter].forEach(k => k.style.display = 'none');
+
         switch (level) {
             case 'level-easy':
                 bpm = 130;
-                totalMeasures = 40; // 約1分
+                totalMeasures = 40;
                 noteSpeed = 3;
                 audioSrc = 'assets/audio/song-easy.mp3';
                 levelName = 'easy';
+                laneCount = 1;
+                activeKeys = [' '];
+                keyMapping = { ' ': 0 };
+                keyElements = { ' ': keySpace };
+                lanePositions = ['50%'];
                 break;
             case 'level-normal':
                 bpm = 150;
-                totalMeasures = 50; // 約1分20秒
+                totalMeasures = 50;
                 noteSpeed = 4;
                 audioSrc = 'assets/audio/song-normal.mp3';
                 levelName = 'normal';
+                laneCount = 2;
+                activeKeys = [' ', 'Enter'];
+                keyMapping = { ' ': 0, 'Enter': 1 };
+                keyElements = { ' ': keySpace, 'Enter': keyEnter };
+                lanePositions = ['35%', '65%'];
                 break;
             case 'level-hard':
                 bpm = 170;
-                totalMeasures = 60; // 約1分25秒
+                totalMeasures = 60;
                 noteSpeed = 5;
                 audioSrc = 'assets/audio/song-hard.mp3';
                 levelName = 'hard';
+                laneCount = 3;
+                activeKeys = ['a', ' ', 'Enter'];
+                keyMapping = { 'a': 0, ' ': 1, 'Enter': 2 };
+                keyElements = { 'a': keyA, ' ': keySpace, 'Enter': keyEnter };
+                lanePositions = ['25%', '50%', '75%'];
                 break;
         }
 
-        musicData = { data: generateMusicSheet(bpm, totalMeasures, levelName) };
+        // UIのセットアップ
+        for (let i = 0; i < laneCount; i++) {
+            const target = document.createElement('div');
+            target.classList.add('target');
+            target.style.display = 'block';
+            target.style.left = lanePositions[i];
+            judgmentLine.appendChild(target);
+        }
+        Object.values(keyElements).forEach(el => el.style.display = 'flex');
+
+        // タッチイベントのセットアップ
+        Object.entries(keyElements).forEach(([key, element]) => {
+            element.ontouchstart = (e) => {
+                e.preventDefault();
+                performJudgment(key);
+            };
+            element.ontouchend = (e) => {
+                e.preventDefault();
+                element.classList.remove('active');
+            };
+        });
+
+        musicData = { data: generateMusicSheet(bpm, totalMeasures, levelName, laneCount) };
         startScreen.classList.add('hidden');
         gameScreen.classList.remove('hidden');
         score = 0;
@@ -125,15 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         notes = [];
         updateScore(0);
         updateHp(0);
-
-        // gameAreaの子要素をjudgmentLine以外削除
-        while (gameArea.children.length > 1) {
-            if(gameArea.firstChild !== judgmentLine) {
-                gameArea.removeChild(gameArea.firstChild);
-            } else if (gameArea.lastChild !== judgmentLine) {
-                gameArea.removeChild(gameArea.lastChild);
-            }
-        }
 
         if (audio) audio.pause();
         audio = new Audio(audioSrc);
@@ -166,23 +192,24 @@ document.addEventListener('DOMContentLoaded', () => {
         gameInterval = requestAnimationFrame(gameLoop);
     }
 
-    // --- ノーツ生成 (1レーン仕様) ---
+    // --- ノーツ生成 ---
     function createNote(lane) {
         const note = document.createElement('div');
         note.classList.add('note');
-        note.dataset.lane = lane; // データとしては保持
+        note.dataset.lane = lane;
         note.style.top = '0px';
-        note.style.left = '50%'; // 中央に配置
+        note.style.left = lanePositions[lane];
+        note.style.transform = 'translateX(-50%)';
         gameArea.insertBefore(note, judgmentLine);
         notes.push(note);
     }
     
     // --- キー入力処理 ---
     function handleKeyPress(e) {
-        // ゲーム画面が表示されていない、またはスペースキーでない場合は処理しない
-        if(gameScreen.classList.contains('hidden') || e.key !== ' ') return;
-        e.preventDefault(); // スペースキーでのスクロールを防ぐ
-        performJudgment(' ');
+        const key = e.key.toLowerCase();
+        if(gameScreen.classList.contains('hidden') || !activeKeys.includes(key)) return;
+        e.preventDefault();
+        performJudgment(key);
     }
 
     // --- 判定実行処理 (キーボード・タッチ共通) ---
@@ -191,17 +218,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const keyElement = keyElements[key];
         if (keyElement) {
             keyElement.classList.add('active');
-            // touchendでクラスを削除するため、キーボードの場合はsetTimeoutで削除
-            if (!('ontouchstart' in window)) {
+            if (!('ontouchstart' in window) || !Object.values(keyElements).some(el => el.ontouchstart)) {
                  setTimeout(() => keyElement.classList.remove('active'), 100);
             }
         }
 
-        if (notes.length === 0) return;
+        const lane = keyMapping[key];
+        const targetNotes = notes.filter(note => parseInt(note.dataset.lane) === lane);
+        if (targetNotes.length === 0) return;
 
         const judgmentLinePosition = judgmentLine.offsetTop;
-        // 最も判定ラインに近いノーツを探す
-        const closestNote = notes.reduce((closest, current) => {
+        const closestNote = targetNotes.reduce((closest, current) => {
             const closestDist = Math.abs(parseFloat(closest.style.top) - judgmentLinePosition);
             const currentDist = Math.abs(parseFloat(current.style.top) - judgmentLinePosition);
             return currentDist < closestDist ? current : closest;

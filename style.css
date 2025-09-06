@@ -123,13 +123,14 @@ button:active {
     width: 100%;
     height: 8vmin; /* サイズをvminに */
     max-height: 60px; /* 最大サイズ */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
-#judgment-line::before {
-    content: '';
-    position: absolute;
-    width: 8vmin; /* サイズをvminに */
-    height: 8vmin; /* サイズをvminに */
+.target {
+    width: 8vmin;
+    height: 8vmin;
     max-width: 60px;
     max-height: 60px;
     background-color: rgba(239, 71, 111, 0.5);
@@ -137,7 +138,8 @@ button:active {
     box-shadow: 0 0 10px #fff;
     box-sizing: border-box;
     clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    left: 50%;
+    display: none; /* JSで表示を制御 */
+    position: absolute;
     transform: translateX(-50%);
 }
 
@@ -173,14 +175,14 @@ button:active {
 #key-guide {
     flex-grow: 1;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
 }
 
 .key {
     padding: 1vmin 2vmin;
     height: auto;
     line-height: 1.5;
-    font-size: calc(16px + 1.5vmin);
+    font-size: calc(12px + 1.2vmin);
     font-weight: bold;
     color: #333;
     background-color: #fff;
@@ -188,10 +190,8 @@ button:active {
     border-radius: 8px;
     box-shadow: 0 3px 0 #aaa;
     transition: all 0.05s ease-in-out;
-}
-
-#key-space {
-    min-width: 40vw; /* 画面幅に応じたサイズ */
+    min-width: 15vw;
+    display: none; /* JSで表示を制御 */
 }
 
 .sub-button {
